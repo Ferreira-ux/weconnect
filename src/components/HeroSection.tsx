@@ -36,7 +36,7 @@ const HeroSection = () => {
 
           <p className="text-lg md:text-xl text-primary-foreground/70 mb-8 leading-relaxed max-w-xl animate-fade-in" style={{ animationDelay: "0.2s" }}>
             Seja candidato buscando oportunidades ou empresa procurando talentos,
-            o Empregaí simplifica a conexão perfeita.
+            o WeConnect+ simplifica a conexão perfeita.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 mb-12 animate-fade-in" style={{ animationDelay: "0.3s" }}>

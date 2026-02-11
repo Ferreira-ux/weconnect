@@ -14,7 +14,7 @@ const CTASection = () => {
           Pronto para dar o próximo passo na sua carreira?
         </h2>
         <p className="text-lg text-primary-foreground/70 mb-10 max-w-xl mx-auto">
-          Junte-se a milhares de profissionais e empresas que já estão conectados no Empregaí.
+          Junte-se a milhares de profissionais e empresas que já estão conectados no WeConnect+.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link to="/cadastro/candidato">
