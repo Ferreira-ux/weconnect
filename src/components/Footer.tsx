@@ -13,7 +13,7 @@ const Footer = () => {
                 <Briefcase className="w-5 h-5 text-accent-foreground" />
               </div>
               <span className="text-xl font-bold">
-                Empreg<span className="text-accent">aí</span>
+                WeConnect<span className="text-accent">+</span>
               </span>
             </Link>
             <p className="text-sm opacity-70 leading-relaxed">
@@ -53,7 +53,7 @@ const Footer = () => {
           </div>
         </div>
         <div className="border-t border-primary-foreground/10 mt-12 pt-8 text-center text-sm opacity-50">
-          © {new Date().getFullYear()} Empregaí. Todos os direitos reservados.
+          © {new Date().getFullYear()} WeConnect+. Todos os direitos reservados.
         </div>
       </div>
     </footer>

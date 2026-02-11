@@ -19,7 +19,7 @@ const Login = () => {
             <Briefcase className="w-8 h-8 text-accent" />
           </div>
           <h2 className="text-3xl font-extrabold text-primary-foreground mb-4">
-            Bem-vindo de volta ao Empregaí
+            Bem-vindo de volta ao WeConnect+
           </h2>
           <p className="text-primary-foreground/60 text-lg">
             Acesse sua conta para encontrar oportunidades incríveis ou gerenciar suas vagas.
@@ -35,7 +35,7 @@ const Login = () => {
               <Briefcase className="w-5 h-5 text-primary-foreground" />
             </div>
             <span className="text-xl font-bold text-foreground">
-              Empreg<span className="text-primary">aí</span>
+              WeConnect<span className="text-primary">+</span>
             </span>
           </Link>
 
