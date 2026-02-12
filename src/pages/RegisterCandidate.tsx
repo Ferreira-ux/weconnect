@@ -1,10 +1,12 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Briefcase, Eye, EyeOff, Upload } from "lucide-react";
+import { Briefcase, Eye, EyeOff, Upload, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const areas = [
   "Tecnologia da Informação",
@@ -22,6 +24,65 @@ const areas = [
 
 const RegisterCandidate = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [area, setArea] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name || !email || !password) {
+      toast({ title: "Preencha todos os campos obrigatórios", variant: "destructive" });
+      return;
+    }
+    if (password.length < 8) {
+      toast({ title: "A senha deve ter no mínimo 8 caracteres", variant: "destructive" });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: window.location.origin,
+          data: { name, phone },
+        },
+      });
+
+      if (error) throw error;
+
+      const userId = data.user?.id;
+      if (userId) {
+        // Assign candidate role
+        await supabase.from("user_roles").insert({ user_id: userId, role: "candidate" });
+        // Create candidate record
+        await supabase.from("candidates").insert({
+          user_id: userId,
+          skills: area || null,
+        });
+        // Update profile phone
+        if (phone) {
+          await supabase.from("profiles").update({ phone }).eq("user_id", userId);
+        }
+      }
+
+      toast({
+        title: "Conta criada com sucesso!",
+        description: "Verifique seu e-mail para confirmar o cadastro.",
+      });
+      navigate("/login");
+    } catch (err: any) {
+      toast({ title: "Erro ao criar conta", description: err.message, variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -61,32 +122,32 @@ const RegisterCandidate = () => {
             </Link>
           </p>
 
-          <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+          <form className="space-y-4" onSubmit={handleSubmit}>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Nome Completo</Label>
-                <Input id="name" placeholder="João Silva" className="h-11" />
+                <Input id="name" placeholder="João Silva" className="h-11" value={name} onChange={(e) => setName(e.target.value)} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="phone">Telefone</Label>
-                <Input id="phone" placeholder="(11) 99999-9999" className="h-11" />
+                <Input id="phone" placeholder="(11) 99999-9999" className="h-11" value={phone} onChange={(e) => setPhone(e.target.value)} />
               </div>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="email">E-mail</Label>
-              <Input id="email" type="email" placeholder="seu@email.com" className="h-11" />
+              <Input id="email" type="email" placeholder="seu@email.com" className="h-11" value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="area">Área de Interesse</Label>
-              <Select>
+              <Select value={area} onValueChange={setArea}>
                 <SelectTrigger className="h-11">
                   <SelectValue placeholder="Selecione uma área" />
                 </SelectTrigger>
                 <SelectContent>
-                  {areas.map((area) => (
-                    <SelectItem key={area} value={area}>{area}</SelectItem>
+                  {areas.map((a) => (
+                    <SelectItem key={a} value={a}>{a}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -100,6 +161,8 @@ const RegisterCandidate = () => {
                   type={showPassword ? "text" : "password"}
                   placeholder="Mínimo 8 caracteres"
                   className="h-11 pr-10"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
                 <button
                   type="button"
@@ -111,18 +174,8 @@ const RegisterCandidate = () => {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label>Currículo (PDF ou Word)</Label>
-              <div className="border-2 border-dashed border-border rounded-xl p-6 text-center hover:border-primary/30 transition-colors cursor-pointer">
-                <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground">
-                  Arraste seu arquivo ou <span className="text-primary font-semibold">clique para enviar</span>
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">PDF, DOC até 10MB</p>
-              </div>
-            </div>
-
-            <Button type="submit" className="w-full h-11 bg-gradient-hero text-primary-foreground hover:opacity-90 font-semibold">
+            <Button type="submit" disabled={loading} className="w-full h-11 bg-gradient-hero text-primary-foreground hover:opacity-90 font-semibold">
+              {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
               Criar Conta
             </Button>
           </form>
