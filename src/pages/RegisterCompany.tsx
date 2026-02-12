@@ -1,10 +1,12 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Building2, Eye, EyeOff } from "lucide-react";
+import { Building2, Eye, EyeOff, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const sectors = [
   "Tecnologia",
@@ -21,6 +23,67 @@ const sectors = [
 
 const RegisterCompany = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [companyName, setCompanyName] = useState("");
+  const [sector, setSector] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!companyName || !sector || !email || !password) {
+      toast({ title: "Preencha todos os campos obrigatórios", variant: "destructive" });
+      return;
+    }
+    if (password.length < 8) {
+      toast({ title: "A senha deve ter no mínimo 8 caracteres", variant: "destructive" });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: window.location.origin,
+          data: { name: companyName },
+        },
+      });
+
+      if (error) throw error;
+
+      const userId = data.user?.id;
+      if (userId) {
+        // Assign company role
+        await supabase.from("user_roles").insert({ user_id: userId, role: "company" });
+        // Create company record
+        await supabase.from("companies").insert({
+          user_id: userId,
+          company_name: companyName,
+          sector,
+          phone: phone || null,
+        });
+        // Update profile phone
+        if (phone) {
+          await supabase.from("profiles").update({ phone }).eq("user_id", userId);
+        }
+      }
+
+      toast({
+        title: "Empresa cadastrada com sucesso!",
+        description: "Verifique seu e-mail para confirmar o cadastro.",
+      });
+      navigate("/login");
+    } catch (err: any) {
+      toast({ title: "Erro ao cadastrar empresa", description: err.message, variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -60,15 +123,15 @@ const RegisterCompany = () => {
             </Link>
           </p>
 
-          <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+          <form className="space-y-4" onSubmit={handleSubmit}>
             <div className="space-y-2">
               <Label htmlFor="companyName">Nome da Empresa</Label>
-              <Input id="companyName" placeholder="Empresa LTDA" className="h-11" />
+              <Input id="companyName" placeholder="Empresa LTDA" className="h-11" value={companyName} onChange={(e) => setCompanyName(e.target.value)} />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="sector">Área de Atuação</Label>
-              <Select>
+              <Select value={sector} onValueChange={setSector}>
                 <SelectTrigger className="h-11">
                   <SelectValue placeholder="Selecione o setor" />
                 </SelectTrigger>
@@ -83,11 +146,11 @@ const RegisterCompany = () => {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="email">E-mail</Label>
-                <Input id="email" type="email" placeholder="contato@empresa.com" className="h-11" />
+                <Input id="email" type="email" placeholder="contato@empresa.com" className="h-11" value={email} onChange={(e) => setEmail(e.target.value)} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="phone">Telefone</Label>
-                <Input id="phone" placeholder="(11) 3333-4444" className="h-11" />
+                <Input id="phone" placeholder="(11) 3333-4444" className="h-11" value={phone} onChange={(e) => setPhone(e.target.value)} />
               </div>
             </div>
 
@@ -99,6 +162,8 @@ const RegisterCompany = () => {
                   type={showPassword ? "text" : "password"}
                   placeholder="Mínimo 8 caracteres"
                   className="h-11 pr-10"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
                 <button
                   type="button"
@@ -110,7 +175,8 @@ const RegisterCompany = () => {
               </div>
             </div>
 
-            <Button type="submit" className="w-full h-11 bg-gradient-hero text-primary-foreground hover:opacity-90 font-semibold">
+            <Button type="submit" disabled={loading} className="w-full h-11 bg-gradient-hero text-primary-foreground hover:opacity-90 font-semibold">
+              {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
               Cadastrar Empresa
             </Button>
           </form>
