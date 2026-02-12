@@ -9,49 +9,25 @@ import {
   Search, MapPin, Building2, Clock, Zap, Bookmark,
 } from "lucide-react";
 
-const mockJobs = [
-  {
-    id: 1, title: "Desenvolvedor Full Stack", company: "TechCorp", location: "São Paulo, SP",
-    type: "CLT", remote: true, salary: "R$ 8.000 - R$ 12.000", area: "Tecnologia da Informação",
-    boosted: true, posted: "2 horas atrás",
-    requirements: "React, Node.js, TypeScript, PostgreSQL",
-  },
-  {
-    id: 2, title: "Analista de Marketing Digital", company: "MarketPro", location: "Rio de Janeiro, RJ",
-    type: "CLT", remote: false, salary: "R$ 5.000 - R$ 7.000", area: "Marketing",
-    boosted: true, posted: "5 horas atrás",
-    requirements: "Google Ads, Meta Ads, SEO, Analytics",
-  },
-  {
-    id: 3, title: "Designer UX/UI", company: "DesignHub", location: "Remoto",
-    type: "PJ", remote: true, salary: "R$ 6.000 - R$ 10.000", area: "Design",
-    boosted: false, posted: "1 dia atrás",
-    requirements: "Figma, Design System, Prototipação",
-  },
-  {
-    id: 4, title: "Gerente de Projetos", company: "ConsultMax", location: "Curitiba, PR",
-    type: "CLT", remote: false, salary: "R$ 10.000 - R$ 14.000", area: "Administração",
-    boosted: false, posted: "2 dias atrás",
-    requirements: "Scrum, PMP, Gestão de equipes",
-  },
-  {
-    id: 5, title: "Enfermeiro(a)", company: "Hospital Vida", location: "Belo Horizonte, MG",
-    type: "CLT", remote: false, salary: "R$ 4.500 - R$ 6.000", area: "Saúde",
-    boosted: false, posted: "3 dias atrás",
-    requirements: "COREN ativo, experiência em UTI",
-  },
-  {
-    id: 6, title: "Engenheiro de Dados", company: "DataFlow", location: "Remoto",
-    type: "PJ", remote: true, salary: "R$ 12.000 - R$ 18.000", area: "Tecnologia da Informação",
-    boosted: false, posted: "4 dias atrás",
-    requirements: "Python, Spark, AWS, SQL",
-  },
-];
+interface Job {
+  id: number;
+  title: string;
+  company: string;
+  location: string;
+  type: string;
+  remote: boolean;
+  salary: string;
+  area: string;
+  boosted: boolean;
+  posted: string;
+  requirements: string;
+}
 
 const Jobs = () => {
   const [search, setSearch] = useState("");
+  const [jobs] = useState<Job[]>([]);
 
-  const filtered = mockJobs.filter(
+  const filtered = jobs.filter(
     (j) =>
       j.title.toLowerCase().includes(search.toLowerCase()) ||
       j.company.toLowerCase().includes(search.toLowerCase())
