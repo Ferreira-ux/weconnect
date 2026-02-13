@@ -9,6 +9,7 @@ import RegisterCandidate from "./pages/RegisterCandidate";
 import RegisterCompany from "./pages/RegisterCompany";
 import Jobs from "./pages/Jobs";
 import Plans from "./pages/Plans";
+import CandidateProfile from "./pages/CandidateProfile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/cadastro/empresa" element={<RegisterCompany />} />
           <Route path="/vagas" element={<Jobs />} />
           <Route path="/planos" element={<Plans />} />
+          <Route path="/perfil/candidato" element={<CandidateProfile />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
