@@ -58,6 +58,7 @@ export type Database = {
       }
       candidates: {
         Row: {
+          avatar_url: string | null
           created_at: string
           id: string
           is_premium: boolean
@@ -67,6 +68,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          avatar_url?: string | null
           created_at?: string
           id?: string
           is_premium?: boolean
@@ -76,6 +78,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          avatar_url?: string | null
           created_at?: string
           id?: string
           is_premium?: boolean
@@ -85,6 +88,41 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      certifications: {
+        Row: {
+          candidate_id: string
+          created_at: string
+          id: string
+          institution: string
+          title: string
+          year: string | null
+        }
+        Insert: {
+          candidate_id: string
+          created_at?: string
+          id?: string
+          institution: string
+          title: string
+          year?: string | null
+        }
+        Update: {
+          candidate_id?: string
+          created_at?: string
+          id?: string
+          institution?: string
+          title?: string
+          year?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "certifications_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidates"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       companies: {
         Row: {
@@ -115,6 +153,47 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      experiences: {
+        Row: {
+          candidate_id: string
+          company: string
+          created_at: string
+          description: string | null
+          end_date: string | null
+          id: string
+          role: string
+          start_date: string
+        }
+        Insert: {
+          candidate_id: string
+          company: string
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          role: string
+          start_date: string
+        }
+        Update: {
+          candidate_id?: string
+          company?: string
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          role?: string
+          start_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "experiences_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidates"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       jobs: {
         Row: {
