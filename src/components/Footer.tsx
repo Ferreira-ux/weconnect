@@ -9,11 +9,11 @@ const Footer = () => {
           {/* Brand */}
           <div className="md:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="w-9 h-9 rounded-lg bg-gradient-accent flex items-center justify-center">
-                <Briefcase className="w-5 h-5 text-accent-foreground" />
+              <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
+                <Briefcase className="w-5 h-5 text-primary-foreground" />
               </div>
               <span className="text-xl font-bold">
-                WeConnect<span className="text-accent">+</span>
+                WeConnect<span className="text-primary">+</span>
               </span>
             </Link>
             <p className="text-sm opacity-70 leading-relaxed">
