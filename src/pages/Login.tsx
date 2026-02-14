@@ -24,11 +24,28 @@ const Login = () => {
 
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
 
-      toast({ title: "Login realizado com sucesso!" });
-      navigate("/vagas");
+      // Check user role to redirect
+      const userId = data.user?.id;
+      if (userId) {
+        const { data: roleData } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", userId)
+          .maybeSingle();
+
+        toast({ title: "Login realizado com sucesso!" });
+        if (roleData?.role === "company") {
+          navigate("/dashboard/empresa");
+        } else {
+          navigate("/vagas");
+        }
+      } else {
+        toast({ title: "Login realizado com sucesso!" });
+        navigate("/vagas");
+      }
     } catch (err: any) {
       toast({ title: "Erro ao fazer login", description: err.message, variant: "destructive" });
     } finally {
