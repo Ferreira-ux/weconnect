@@ -60,10 +60,10 @@ const plans = [
 
 const PricingSection = () => {
   return (
-    <section className="py-24 bg-secondary/50">
+    <section className="py-24 bg-background">
       <div className="container mx-auto px-4">
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <span className="text-sm font-semibold text-accent uppercase tracking-wider">
+          <span className="text-sm font-semibold text-primary uppercase tracking-wider">
             Planos
           </span>
           <h2 className="text-3xl md:text-4xl font-extrabold text-foreground mt-3 mb-4">
@@ -86,7 +86,7 @@ const PricingSection = () => {
               style={{ animationDelay: `${i * 0.15}s` }}
             >
               {plan.highlighted && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-accent text-accent-foreground text-xs font-bold uppercase tracking-wider">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-primary-foreground text-primary text-xs font-bold uppercase tracking-wider">
                   Mais Popular
                 </div>
               )}
@@ -126,7 +126,7 @@ const PricingSection = () => {
                 {plan.features.map((feature) => (
                   <li key={feature} className="flex items-start gap-3 text-sm">
                     <Check className={`w-4 h-4 mt-0.5 flex-shrink-0 ${
-                      plan.highlighted ? "text-accent" : "text-success"
+                      plan.highlighted ? "text-primary-foreground" : "text-primary"
                     }`} />
                     <span className={plan.highlighted ? "text-primary-foreground/90" : "text-foreground"}>
                       {feature}
@@ -139,7 +139,7 @@ const PricingSection = () => {
                 <Button
                   className={`w-full h-11 font-semibold ${
                     plan.highlighted
-                      ? "bg-accent text-accent-foreground hover:opacity-90 shadow-accent-glow"
+                      ? "bg-primary-foreground text-primary hover:bg-primary-foreground/90"
                       : "bg-gradient-hero text-primary-foreground hover:opacity-90"
                   }`}
                 >
