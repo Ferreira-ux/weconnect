@@ -10,6 +10,7 @@ import RegisterCompany from "./pages/RegisterCompany";
 import Jobs from "./pages/Jobs";
 import Plans from "./pages/Plans";
 import CandidateProfile from "./pages/CandidateProfile";
+import CompanyDashboard from "./pages/CompanyDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/vagas" element={<Jobs />} />
           <Route path="/planos" element={<Plans />} />
           <Route path="/perfil/candidato" element={<CandidateProfile />} />
+          <Route path="/dashboard/empresa" element={<CompanyDashboard />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
