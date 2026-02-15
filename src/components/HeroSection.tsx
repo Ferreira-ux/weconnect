@@ -27,7 +27,7 @@ const HeroSection = () => {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent text-accent-foreground text-sm font-medium mb-8"
           >
             <Sparkles className="w-4 h-4" />
-            A plataforma que conecta talentos a oportunidades
+            Oportunidades para todos, sem exigir diploma
           </motion.div>
 
           <motion.h1
@@ -36,9 +36,9 @@ const HeroSection = () => {
             transition={{ duration: 0.6, delay: 0.15 }}
             className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground leading-tight mb-6"
           >
-            Encontre o{" "}
-            <span className="text-primary">emprego ideal</span>{" "}
-            para sua carreira
+            Sua próxima{" "}
+            <span className="text-primary">oportunidade</span>{" "}
+            começa aqui
           </motion.h1>
 
           <motion.p
@@ -47,8 +47,8 @@ const HeroSection = () => {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="text-lg md:text-xl text-muted-foreground mb-10 leading-relaxed max-w-2xl mx-auto"
           >
-            Seja candidato buscando oportunidades ou empresa procurando talentos,
-            o WeConnect+ simplifica a conexão perfeita.
+            Não precisa de diploma ou experiência extensa. Cadastre-se, mostre suas habilidades
+            e conecte-se com empresas que valorizam o seu potencial.
           </motion.p>
 
           <motion.div

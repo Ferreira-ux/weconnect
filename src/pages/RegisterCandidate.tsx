@@ -29,6 +29,7 @@ const RegisterCandidate = () => {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [area, setArea] = useState("");
+  const [customArea, setCustomArea] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -62,9 +63,10 @@ const RegisterCandidate = () => {
         // Assign candidate role
         await supabase.from("user_roles").insert({ user_id: userId, role: "candidate" });
         // Create candidate record
+        const finalArea = area === "Outros" ? customArea : area;
         await supabase.from("candidates").insert({
           user_id: userId,
-          skills: area || null,
+          skills: finalArea || null,
         });
         // Update profile phone
         if (phone) {
@@ -141,7 +143,7 @@ const RegisterCandidate = () => {
 
             <div className="space-y-2">
               <Label htmlFor="area">Área de Interesse</Label>
-              <Select value={area} onValueChange={setArea}>
+              <Select value={area} onValueChange={(v) => { setArea(v); if (v !== "Outros") setCustomArea(""); }}>
                 <SelectTrigger className="h-11">
                   <SelectValue placeholder="Selecione uma área" />
                 </SelectTrigger>
@@ -151,6 +153,14 @@ const RegisterCandidate = () => {
                   ))}
                 </SelectContent>
               </Select>
+              {area === "Outros" && (
+                <Input
+                  placeholder="Digite sua área de interesse"
+                  className="h-11 mt-2"
+                  value={customArea}
+                  onChange={(e) => setCustomArea(e.target.value)}
+                />
+              )}
             </div>
 
             <div className="space-y-2">
