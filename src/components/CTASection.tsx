@@ -11,10 +11,10 @@ const CTASection = () => {
 
       <div className="container mx-auto px-4 relative z-10 text-center">
         <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-primary-foreground mb-6 max-w-3xl mx-auto leading-tight">
-          Pronto para dar o próximo passo na sua carreira?
+          Não espere pelo diploma. Comece agora.
         </h2>
         <p className="text-lg text-primary-foreground/70 mb-10 max-w-xl mx-auto">
-          Junte-se a profissionais e empresas que já estão conectados no WeConnect+.
+          Empresas de médio e grande porte estão buscando pessoas com vontade de trabalhar. Cadastre-se gratuitamente.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link to="/cadastro/candidato">

@@ -63,12 +63,12 @@ const FeaturesSection = () => {
             Funcionalidades
           </span>
           <h2 className="text-3xl md:text-4xl font-extrabold text-foreground mt-3 mb-4">
-            Tudo que você precisa para{" "}
-            <span className="text-primary">encontrar ou oferecer</span>{" "}
-            empregos
+            Feito para quem quer{" "}
+            <span className="text-primary">começar</span>{" "}
+            ou recomeçar
           </h2>
           <p className="text-muted-foreground text-lg">
-            Ferramentas poderosas para candidatos e empresas, tudo em um só lugar.
+            Sem burocracia. Cadastre suas habilidades e encontre vagas que combinam com você.
           </p>
         </motion.div>
 
