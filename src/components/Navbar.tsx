@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Briefcase, LogOut } from "lucide-react";
+import { Menu, X, Briefcase, LogOut, MessageSquare } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import NotificationBell from "@/components/NotificationBell";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -62,9 +63,15 @@ const Navbar = () => {
             ))}
           </div>
 
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden md:flex items-center gap-2">
             {user ? (
               <>
+                <NotificationBell />
+                <Link to="/chat">
+                  <Button variant="ghost" size="icon">
+                    <MessageSquare className="w-5 h-5" />
+                  </Button>
+                </Link>
                 <Link to="/perfil/candidato">
                   <Button variant="ghost" size="sm">Meu Perfil</Button>
                 </Link>

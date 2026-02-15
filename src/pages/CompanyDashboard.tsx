@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import {
-  Plus, Briefcase, MapPin, Trash2, Pencil, Loader2, Building2, Eye, EyeOff,
+  Plus, Briefcase, MapPin, Trash2, Pencil, Loader2, Building2, Eye, EyeOff, Users, MessageSquare,
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -42,6 +42,9 @@ const CompanyDashboard = () => {
   const [saving, setSaving] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editingJob, setEditingJob] = useState<Job | null>(null);
+  const [selectedJobApplicants, setSelectedJobApplicants] = useState<any[] | null>(null);
+  const [selectedJobTitle, setSelectedJobTitle] = useState("");
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -62,6 +65,7 @@ const CompanyDashboard = () => {
   const loadData = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { navigate("/login"); return; }
+    setCurrentUserId(user.id);
 
     const { data: companyData } = await supabase
       .from("companies")
@@ -139,6 +143,82 @@ const CompanyDashboard = () => {
     await supabase.from("jobs").delete().eq("id", id);
     toast({ title: "Vaga removida" });
     loadData();
+  };
+
+  const viewApplicants = async (jobId: string, jobTitle: string) => {
+    setSelectedJobTitle(jobTitle);
+    const { data: apps } = await supabase
+      .from("applications")
+      .select("*")
+      .eq("job_id", jobId);
+
+    if (!apps || apps.length === 0) {
+      setSelectedJobApplicants([]);
+      return;
+    }
+
+    // Get candidate user_ids and names
+    const enriched = await Promise.all(
+      apps.map(async (app: any) => {
+        const { data: cand } = await supabase
+          .from("candidates")
+          .select("user_id")
+          .eq("id", app.candidate_id)
+          .maybeSingle();
+        const userId = cand?.user_id;
+        const { data: profile } = userId
+          ? await supabase.from("profiles").select("name, email").eq("user_id", userId).maybeSingle()
+          : { data: null };
+        return {
+          ...app,
+          candidateUserId: userId,
+          candidateName: profile?.name || "Candidato",
+          candidateEmail: profile?.email || "",
+        };
+      })
+    );
+    setSelectedJobApplicants(enriched);
+  };
+
+  const startChat = async (applicationId: string, candidateUserId: string) => {
+    if (!currentUserId) return;
+
+    // Check if conversation already exists
+    const { data: existing } = await supabase
+      .from("conversations")
+      .select("id")
+      .eq("application_id", applicationId)
+      .maybeSingle();
+
+    if (existing) {
+      navigate(`/chat?id=${existing.id}`);
+      return;
+    }
+
+    const { data: conv, error } = await supabase
+      .from("conversations")
+      .insert({
+        application_id: applicationId,
+        company_user_id: currentUserId,
+        candidate_user_id: candidateUserId,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      toast({ title: "Erro ao iniciar chat", description: error.message, variant: "destructive" });
+      return;
+    }
+
+    // Notify candidate
+    await supabase.from("notifications").insert({
+      user_id: candidateUserId,
+      type: "chat_message",
+      title: "Nova conversa iniciada",
+      message: `A empresa iniciou uma conversa sobre sua candidatura.`,
+    });
+
+    navigate(`/chat?id=${conv.id}`);
   };
 
   if (loading) {
@@ -283,6 +363,9 @@ const CompanyDashboard = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
+                  <Button size="sm" variant="ghost" onClick={() => viewApplicants(job.id, job.title)} title="Ver candidatos">
+                    <Users className="w-4 h-4" />
+                  </Button>
                   <Button size="sm" variant="ghost" onClick={() => toggleActive(job)} title={job.is_active ? "Desativar" : "Ativar"}>
                     {job.is_active ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                   </Button>
@@ -296,6 +379,54 @@ const CompanyDashboard = () => {
               </motion.div>
             ))}
           </div>
+        )}
+
+        {/* Applicants Panel */}
+        {selectedJobApplicants !== null && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-8 bg-card border border-border rounded-2xl p-6"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-bold text-foreground flex items-center gap-2">
+                <Users className="w-5 h-5 text-primary" />
+                Candidatos — {selectedJobTitle}
+              </h2>
+              <Button variant="ghost" size="sm" onClick={() => setSelectedJobApplicants(null)}>
+                Fechar
+              </Button>
+            </div>
+            {selectedJobApplicants.length === 0 ? (
+              <p className="text-muted-foreground text-sm text-center py-6">Nenhum candidato se inscreveu ainda.</p>
+            ) : (
+              <div className="space-y-3">
+                {selectedJobApplicants.map((app: any) => (
+                  <div key={app.id} className="flex items-center justify-between p-4 border border-border rounded-lg">
+                    <div>
+                      <p className="font-semibold text-foreground">{app.candidateName}</p>
+                      <p className="text-sm text-muted-foreground">{app.candidateEmail}</p>
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${
+                        app.status === "pending" ? "bg-accent text-accent-foreground" :
+                        app.status === "approved" ? "bg-primary/10 text-primary" :
+                        "bg-destructive/10 text-destructive"
+                      }`}>
+                        {app.status === "pending" ? "Pendente" : app.status === "approved" ? "Aprovado" : "Rejeitado"}
+                      </span>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="gap-1"
+                      onClick={() => startChat(app.id, app.candidateUserId)}
+                    >
+                      <MessageSquare className="w-4 h-4" /> Chat
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </motion.div>
         )}
       </div>
     </div>
