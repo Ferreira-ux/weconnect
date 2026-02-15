@@ -11,6 +11,7 @@ import Jobs from "./pages/Jobs";
 import Plans from "./pages/Plans";
 import CandidateProfile from "./pages/CandidateProfile";
 import CompanyDashboard from "./pages/CompanyDashboard";
+import Chat from "./pages/Chat";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/planos" element={<Plans />} />
           <Route path="/perfil/candidato" element={<CandidateProfile />} />
           <Route path="/dashboard/empresa" element={<CompanyDashboard />} />
+          <Route path="/chat" element={<Chat />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

@@ -20,6 +20,9 @@ import {
   Save,
   X,
   User,
+  FileUp,
+  FileText,
+  Download,
 } from "lucide-react";
 
 interface Profile {
@@ -32,6 +35,7 @@ interface Candidate {
   id: string;
   skills: string | null;
   avatar_url: string | null;
+  resume_url: string | null;
 }
 
 interface Certification {
@@ -54,10 +58,12 @@ const CandidateProfile = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const resumeInputRef = useRef<HTMLInputElement>(null);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadingResume, setUploadingResume] = useState(false);
 
   const [profile, setProfile] = useState<Profile>({ name: "", email: "", phone: "" });
   const [candidate, setCandidate] = useState<Candidate | null>(null);
@@ -97,7 +103,7 @@ const CandidateProfile = () => {
 
     const [profileRes, candidateRes] = await Promise.all([
       supabase.from("profiles").select("name, email, phone").eq("user_id", user.id).single(),
-      supabase.from("candidates").select("id, skills, avatar_url").eq("user_id", user.id).single(),
+      supabase.from("candidates").select("id, skills, avatar_url, resume_url").eq("user_id", user.id).single(),
     ]);
 
     if (profileRes.data) setProfile(profileRes.data);
@@ -144,6 +150,69 @@ const CandidateProfile = () => {
     setCandidate({ ...candidate, avatar_url: publicUrl.publicUrl });
     toast({ title: "Foto atualizada!" });
     setUploading(false);
+  };
+
+  const handleResumeUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !candidate) return;
+
+    const validTypes = [
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "image/png",
+      "image/jpeg",
+    ];
+    if (!validTypes.includes(file.type)) {
+      toast({ title: "Formato inválido", description: "Use PDF, Word ou imagem (PNG/JPEG).", variant: "destructive" });
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast({ title: "Arquivo muito grande", description: "Máximo 10MB.", variant: "destructive" });
+      return;
+    }
+
+    setUploadingResume(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const ext = file.name.split(".").pop() || "pdf";
+    const filePath = `${user.id}/curriculo_${Date.now()}.${ext}`;
+    const { error: uploadError } = await supabase.storage.from("resumes").upload(filePath, file, { upsert: true });
+    if (uploadError) {
+      toast({ title: "Erro ao enviar currículo", description: uploadError.message, variant: "destructive" });
+      setUploadingResume(false);
+      return;
+    }
+
+    // Store path reference in candidates table
+    await supabase.from("candidates").update({ resume_url: filePath }).eq("id", candidate.id);
+    setCandidate({ ...candidate, resume_url: filePath });
+    toast({ title: "Currículo enviado com sucesso!" });
+    setUploadingResume(false);
+  };
+
+  const deleteResume = async () => {
+    if (!candidate?.resume_url) return;
+    await supabase.storage.from("resumes").remove([candidate.resume_url]);
+    await supabase.from("candidates").update({ resume_url: null }).eq("id", candidate.id);
+    setCandidate({ ...candidate, resume_url: null });
+    toast({ title: "Currículo removido" });
+  };
+
+  const downloadResume = async () => {
+    if (!candidate?.resume_url) return;
+    const { data, error } = await supabase.storage.from("resumes").download(candidate.resume_url);
+    if (error || !data) {
+      toast({ title: "Erro ao baixar currículo", variant: "destructive" });
+      return;
+    }
+    const url = URL.createObjectURL(data);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = candidate.resume_url.split("/").pop() || "curriculo";
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   const startEditing = () => {
@@ -320,6 +389,75 @@ const CandidateProfile = () => {
                 )}
               </div>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Resume Upload */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <FileText className="w-5 h-5 text-primary" /> Currículo
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {candidate?.resume_url ? (
+              <div className="flex items-center justify-between p-4 border border-border rounded-lg bg-muted/30">
+                <div className="flex items-center gap-3">
+                  <FileText className="w-8 h-8 text-primary" />
+                  <div>
+                    <p className="font-semibold text-foreground text-sm">
+                      {candidate.resume_url.split("/").pop()}
+                    </p>
+                    <p className="text-xs text-muted-foreground">Currículo enviado</p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={downloadResume}>
+                    <Download className="w-4 h-4 mr-1" /> Baixar
+                  </Button>
+                  <Button variant="outline" size="sm" className="text-destructive hover:text-destructive" onClick={deleteResume}>
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-6">
+                <FileUp className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
+                <p className="text-muted-foreground text-sm mb-4">
+                  Envie seu currículo (PDF, Word ou imagem) para aumentar suas chances
+                </p>
+                <Button
+                  variant="outline"
+                  onClick={() => resumeInputRef.current?.click()}
+                  disabled={uploadingResume}
+                  className="gap-2"
+                >
+                  {uploadingResume ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileUp className="w-4 h-4" />}
+                  Enviar Currículo
+                </Button>
+              </div>
+            )}
+            <input
+              ref={resumeInputRef}
+              type="file"
+              accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
+              className="hidden"
+              onChange={handleResumeUpload}
+            />
+            {candidate?.resume_url && (
+              <div className="mt-3 text-center">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => resumeInputRef.current?.click()}
+                  disabled={uploadingResume}
+                  className="text-primary gap-1"
+                >
+                  {uploadingResume ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileUp className="w-4 h-4" />}
+                  Substituir currículo
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
 
