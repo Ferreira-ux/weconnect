@@ -47,32 +47,20 @@ const RegisterCandidate = () => {
 
     setLoading(true);
     try {
-      const { data, error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           emailRedirectTo: window.location.origin,
-          data: { name, phone },
+          data: {
+            name,
+            phone: phone || null,
+            user_type: "candidate",
+          },
         },
       });
 
       if (error) throw error;
-
-      const userId = data.user?.id;
-      if (userId) {
-        // Assign candidate role
-        await supabase.from("user_roles").insert({ user_id: userId, role: "candidate" });
-        // Create candidate record
-        const finalArea = area === "Outros" ? customArea : area;
-        await supabase.from("candidates").insert({
-          user_id: userId,
-          skills: finalArea || null,
-        });
-        // Update profile phone
-        if (phone) {
-          await supabase.from("profiles").update({ phone }).eq("user_id", userId);
-        }
-      }
 
       toast({
         title: "Conta criada com sucesso!",
