@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
@@ -20,6 +20,7 @@ interface Job {
   area: string;
   location: string;
   type: string;
+  work_model: string;
   remote: boolean;
   salary_range: string | null;
   description: string | null;
@@ -29,7 +30,8 @@ interface Job {
   created_at: string;
 }
 
-const jobTypes = ["CLT", "PJ", "Estágio", "Freelancer", "Temporário"];
+const jobTypes = ["CLT", "PJ", "Estágio", "Jovem Aprendiz", "Freelancer", "Temporário"];
+const workModels = ["Presencial", "Remoto", "Híbrido"];
 const jobAreas = [
   "Tecnologia", "Marketing", "Vendas", "Financeiro", "RH",
   "Operações", "Design", "Jurídico", "Saúde", "Educação", "Outros",
@@ -53,6 +55,7 @@ const CompanyDashboard = () => {
   const [area, setArea] = useState("");
   const [location, setLocation] = useState("");
   const [type, setType] = useState("CLT");
+  const [workModel, setWorkModel] = useState("Presencial");
   const [remote, setRemote] = useState(false);
   const [salaryRange, setSalaryRange] = useState("");
   const [description, setDescription] = useState("");
@@ -89,13 +92,15 @@ const CompanyDashboard = () => {
 
   const resetForm = () => {
     setTitle(""); setArea(""); setLocation(""); setType("CLT");
-    setRemote(false); setSalaryRange(""); setDescription(""); setRequirements("");
+    setWorkModel("Presencial"); setRemote(false); setSalaryRange("");
+    setDescription(""); setRequirements("");
     setEditingJob(null); setShowForm(false);
   };
 
   const openEditForm = (job: Job) => {
     setTitle(job.title); setArea(job.area); setLocation(job.location);
-    setType(job.type); setRemote(job.remote); setSalaryRange(job.salary_range || "");
+    setType(job.type); setWorkModel(job.work_model || "Presencial");
+    setRemote(job.remote); setSalaryRange(job.salary_range || "");
     setDescription(job.description || ""); setRequirements(job.requirements || "");
     setEditingJob(job); setShowForm(true);
   };
@@ -108,7 +113,9 @@ const CompanyDashboard = () => {
     setSaving(true);
 
     const payload = {
-      title, area, location, type, remote,
+      title, area, location, type,
+      work_model: workModel,
+      remote: workModel === "Remoto",
       salary_range: salaryRange || null,
       description: description || null,
       requirements: requirements || null,
@@ -295,9 +302,14 @@ const CompanyDashboard = () => {
                 <Label>Faixa Salarial</Label>
                 <Input value={salaryRange} onChange={(e) => setSalaryRange(e.target.value)} placeholder="R$ 3.000 - R$ 5.000" className="h-11" />
               </div>
-              <div className="flex items-center gap-3 pt-7">
-                <Switch checked={remote} onCheckedChange={setRemote} />
-                <Label>Vaga remota</Label>
+              <div className="space-y-2">
+                <Label>Modelo de Trabalho</Label>
+                <Select value={workModel} onValueChange={setWorkModel}>
+                  <SelectTrigger className="h-11"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {workModels.map((w) => <SelectItem key={w} value={w}>{w}</SelectItem>)}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2 md:col-span-2">
                 <Label>Descrição</Label>
@@ -357,8 +369,8 @@ const CompanyDashboard = () => {
                   <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
                     <span className="flex items-center gap-1"><Briefcase className="w-3.5 h-3.5" />{job.area}</span>
                     <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" />{job.location}</span>
-                    <span>{job.type}</span>
-                    {job.remote && <span className="text-primary font-medium">Remoto</span>}
+                    <Badge variant="outline" className="text-xs">{job.type}</Badge>
+                    <Badge variant="secondary" className="text-xs">{job.work_model || "Presencial"}</Badge>
                     {job.salary_range && <span>{job.salary_range}</span>}
                   </div>
                 </div>

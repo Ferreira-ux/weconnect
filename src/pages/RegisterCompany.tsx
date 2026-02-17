@@ -45,33 +45,22 @@ const RegisterCompany = () => {
 
     setLoading(true);
     try {
-      const { data, error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           emailRedirectTo: window.location.origin,
-          data: { name: companyName },
+          data: {
+            name: companyName,
+            user_type: "company",
+            company_name: companyName,
+            sector,
+            phone: phone || null,
+          },
         },
       });
 
       if (error) throw error;
-
-      const userId = data.user?.id;
-      if (userId) {
-        // Assign company role
-        await supabase.from("user_roles").insert({ user_id: userId, role: "company" });
-        // Create company record
-        await supabase.from("companies").insert({
-          user_id: userId,
-          company_name: companyName,
-          sector,
-          phone: phone || null,
-        });
-        // Update profile phone
-        if (phone) {
-          await supabase.from("profiles").update({ phone }).eq("user_id", userId);
-        }
-      }
 
       toast({
         title: "Empresa cadastrada com sucesso!",

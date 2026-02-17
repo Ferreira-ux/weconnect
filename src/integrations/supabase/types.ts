@@ -252,6 +252,7 @@ export type Database = {
           title: string
           type: string
           updated_at: string
+          work_model: string
         }
         Insert: {
           area: string
@@ -268,6 +269,7 @@ export type Database = {
           title: string
           type?: string
           updated_at?: string
+          work_model?: string
         }
         Update: {
           area?: string
@@ -284,6 +286,7 @@ export type Database = {
           title?: string
           type?: string
           updated_at?: string
+          work_model?: string
         }
         Relationships: [
           {
