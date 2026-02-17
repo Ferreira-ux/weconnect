@@ -1,73 +1,122 @@
-# Welcome to your Lovable project
+Welcome to your Lovable Project
+Informações do Projeto
 
-## Project info
+URL do Projeto:
+https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+Este repositório contém o código-fonte da aplicação desenvolvida por meio da plataforma Lovable, com versionamento e gerenciamento realizados via GitHub.
 
-## How can I edit this code?
+Diretrizes para Edição e Manutenção do Código
 
-There are several ways of editing your application.
+A aplicação pode ser editada e mantida por diferentes abordagens, conforme descrito a seguir.
 
-**Use Lovable**
+1. Edição por meio da Plataforma Lovable
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+A forma mais direta de modificar o projeto é acessando a plataforma Lovable:
 
-Changes made via Lovable will be committed automatically to this repo.
+Acesse:
+https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
 
-**Use your preferred IDE**
+As alterações realizadas na interface da plataforma são automaticamente versionadas e sincronizadas com este repositório.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+2. Desenvolvimento Local com IDE
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+Para desenvolvimento local utilizando um ambiente de desenvolvimento integrado (IDE) de sua preferência, siga as instruções abaixo.
 
-Follow these steps:
+Pré-requisitos
+
+Node.js instalado
+
+npm (Node Package Manager)
+
+Recomenda-se a utilização do nvm para gerenciamento de versões:
+https://github.com/nvm-sh/nvm#installing-and-updating
+
+Procedimento 
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
+
+# Etapa 1: Clone o repositório utilizando a URL Git do projeto.
 git clone <YOUR_GIT_URL>
 
-# Step 2: Navigate to the project directory.
+# Etapa 2: Acesse o diretório do projeto.
 cd <YOUR_PROJECT_NAME>
 
-# Step 3: Install the necessary dependencies.
-npm i
+# Etapa 3: Instale as dependências necessárias.
+npm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Etapa 4: Inicie o servidor de desenvolvimento com recarregamento automático e preview instantâneo.
 npm run dev
+
 ```
 
-**Edit a file directly in GitHub**
+Após a execução do servidor de desenvolvimento, a aplicação estará disponível em ambiente local com suporte a hot reload.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+As alterações enviadas ao repositório remoto serão automaticamente refletidas na plataforma Lovable.
 
-**Use GitHub Codespaces**
+3. Edição Diretamente no GitHub
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Também é possível realizar modificações diretamente pela interface web do GitHub:
 
-## What technologies are used for this project?
+Navegue até o arquivo desejado.
 
-This project is built with:
+Selecione a opção Edit (ícone de lápis).
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Realize as alterações necessárias.
 
-## How can I deploy this project?
+Efetue o commit das modificações.
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+4. Utilização do GitHub Codespaces
 
-## Can I connect a custom domain to my Lovable project?
+Para desenvolvimento em ambiente remoto baseado em nuvem:
 
-Yes, you can!
+Acesse a página principal do repositório.
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+Clique no botão Code.
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Selecione a aba Codespaces.
+
+Crie um novo Codespace.
+
+Edite, commit e envie (push) as alterações diretamente do ambiente provisionado.
+
+Tecnologias Utilizadas
+
+Este projeto foi desenvolvido utilizando as seguintes tecnologias:
+
+Vite (build tool e dev server)
+
+TypeScript (tipagem estática)
+
+React (biblioteca para construção de interfaces)
+
+shadcn-ui (componentes de interface)
+
+Tailwind CSS (framework utilitário de estilização)
+
+Processo de Deploy
+
+O processo de publicação é realizado diretamente pela plataforma Lovable.
+
+Para publicar:
+
+Acesse o projeto na plataforma.
+
+Selecione a opção Share.
+
+Clique em Publish.
+
+Configuração de Domínio Personalizado
+
+A plataforma oferece suporte à associação de domínios personalizados.
+
+Para configurar:
+
+Acesse Project > Settings > Domains.
+
+Selecione Connect Domain.
+
+Siga as instruções fornecidas pela plataforma.
+
+Documentação adicional disponível em:
+https://docs.lovable.dev/features/custom-domain#custom-domain
