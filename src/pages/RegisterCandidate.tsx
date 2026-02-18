@@ -116,7 +116,7 @@ const RegisterCandidate = () => {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Nome Completo</Label>
-                <Input id="name" placeholder="João Silva" className="h-11" value={name} onChange={(e) => setName(e.target.value)} />
+                <Input id="name" placeholder="Digite seu nome" className="h-11" value={name} onChange={(e) => setName(e.target.value)} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="phone">Telefone</Label>
