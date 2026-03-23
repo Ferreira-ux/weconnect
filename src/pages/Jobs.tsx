@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -267,7 +267,7 @@ const Jobs = () => {
                         </Badge>
                       </div>
                       <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">
-                        {job.title}
+                        <Link to={`/vaga/${job.id}`} className="hover:underline">{job.title}</Link>
                       </h3>
                       <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-muted-foreground">
                         <span className="flex items-center gap-1">
@@ -291,6 +291,11 @@ const Jobs = () => {
                         <span className="text-lg font-bold text-foreground whitespace-nowrap">{job.salary_range}</span>
                       )}
                       <div className="flex gap-2">
+                         <Link to={`/vaga/${job.id}`}>
+                           <Button variant="ghost" size="sm" className="text-primary hover:underline">
+                             Ver detalhes
+                           </Button>
+                         </Link>
                         <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary">
                           <Bookmark className="w-4 h-4" />
                         </Button>

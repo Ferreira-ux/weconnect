@@ -187,6 +187,31 @@ const CompanyDashboard = () => {
     setSelectedJobApplicants(enriched);
   };
 
+  const updateApplicationStatus = async (applicationId: string, status: string, candidateUserId: string) => {
+    const { error } = await supabase.from("applications").update({ status }).eq("id", applicationId);
+    if (error) {
+      toast({ title: "Erro ao atualizar status", variant: "destructive" });
+      return;
+    }
+    
+    // Update local state
+    setSelectedJobApplicants((prev) =>
+      prev ? prev.map((a: any) => a.id === applicationId ? { ...a, status } : a) : prev
+    );
+
+    // Notify candidate
+    await supabase.from("notifications").insert({
+      user_id: candidateUserId,
+      type: "application_status",
+      title: status === "approved" ? "Candidatura aprovada!" : "Candidatura recusada",
+      message: status === "approved"
+        ? `Parabéns! Sua candidatura para "${selectedJobTitle}" foi aprovada.`
+        : `Sua candidatura para "${selectedJobTitle}" foi recusada.`,
+    });
+
+    toast({ title: status === "approved" ? "Candidato aceito!" : "Candidato recusado" });
+  };
+
   const startChat = async (applicationId: string, candidateUserId: string) => {
     if (!currentUserId) return;
 
@@ -417,7 +442,7 @@ const CompanyDashboard = () => {
                   <div key={app.id} className="flex items-center justify-between p-4 border border-border rounded-lg">
                     <div>
                       <p className="font-semibold text-foreground">{app.candidateName}</p>
-                      <p className="text-sm text-muted-foreground">{app.candidateEmail}</p>
+              <p className="text-sm text-muted-foreground">{app.candidateEmail}</p>
                       <span className={`text-xs px-2 py-0.5 rounded-full ${
                         app.status === "pending" ? "bg-accent text-accent-foreground" :
                         app.status === "approved" ? "bg-primary/10 text-primary" :
@@ -426,14 +451,36 @@ const CompanyDashboard = () => {
                         {app.status === "pending" ? "Pendente" : app.status === "approved" ? "Aprovado" : "Rejeitado"}
                       </span>
                     </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="gap-1"
-                      onClick={() => startChat(app.id, app.candidateUserId)}
-                    >
-                      <MessageSquare className="w-4 h-4" /> Chat
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      {app.status === "pending" && (
+                        <>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="gap-1 text-primary border-primary/30 hover:bg-primary/10"
+                            onClick={() => updateApplicationStatus(app.id, "approved", app.candidateUserId)}
+                          >
+                            Aceitar
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="gap-1 text-destructive border-destructive/30 hover:bg-destructive/10"
+                            onClick={() => updateApplicationStatus(app.id, "rejected", app.candidateUserId)}
+                          >
+                            Recusar
+                          </Button>
+                        </>
+                      )}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="gap-1"
+                        onClick={() => startChat(app.id, app.candidateUserId)}
+                      >
+                        <MessageSquare className="w-4 h-4" /> Chat
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>
