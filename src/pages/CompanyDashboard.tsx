@@ -187,6 +187,31 @@ const CompanyDashboard = () => {
     setSelectedJobApplicants(enriched);
   };
 
+  const updateApplicationStatus = async (applicationId: string, status: string, candidateUserId: string) => {
+    const { error } = await supabase.from("applications").update({ status }).eq("id", applicationId);
+    if (error) {
+      toast({ title: "Erro ao atualizar status", variant: "destructive" });
+      return;
+    }
+    
+    // Update local state
+    setSelectedJobApplicants((prev) =>
+      prev ? prev.map((a: any) => a.id === applicationId ? { ...a, status } : a) : prev
+    );
+
+    // Notify candidate
+    await supabase.from("notifications").insert({
+      user_id: candidateUserId,
+      type: "application_status",
+      title: status === "approved" ? "Candidatura aprovada!" : "Candidatura recusada",
+      message: status === "approved"
+        ? `Parabéns! Sua candidatura para "${selectedJobTitle}" foi aprovada.`
+        : `Sua candidatura para "${selectedJobTitle}" foi recusada.`,
+    });
+
+    toast({ title: status === "approved" ? "Candidato aceito!" : "Candidato recusado" });
+  };
+
   const startChat = async (applicationId: string, candidateUserId: string) => {
     if (!currentUserId) return;
 
