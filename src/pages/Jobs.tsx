@@ -267,7 +267,7 @@ const Jobs = () => {
                         </Badge>
                       </div>
                       <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">
-                        {job.title}
+                        <Link to={`/vaga/${job.id}`} className="hover:underline">{job.title}</Link>
                       </h3>
                       <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-muted-foreground">
                         <span className="flex items-center gap-1">
