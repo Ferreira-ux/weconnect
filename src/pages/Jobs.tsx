@@ -291,6 +291,11 @@ const Jobs = () => {
                         <span className="text-lg font-bold text-foreground whitespace-nowrap">{job.salary_range}</span>
                       )}
                       <div className="flex gap-2">
+                         <Link to={`/vaga/${job.id}`}>
+                           <Button variant="ghost" size="sm" className="text-primary hover:underline">
+                             Ver detalhes
+                           </Button>
+                         </Link>
                         <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary">
                           <Bookmark className="w-4 h-4" />
                         </Button>
