@@ -1,22 +1,35 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Briefcase, LogOut, MessageSquare } from "lucide-react";
+import { Menu, X, Briefcase, LogOut, MessageSquare, Settings } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import NotificationBell from "@/components/NotificationBell";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
+      if (session?.user) {
+        supabase.from("user_roles").select("role").eq("user_id", session.user.id).maybeSingle().then(({ data }) => {
+          setUserRole(data?.role || null);
+        });
+      } else {
+        setUserRole(null);
+      }
     });
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
+      if (session?.user) {
+        supabase.from("user_roles").select("role").eq("user_id", session.user.id).maybeSingle().then(({ data }) => {
+          setUserRole(data?.role || null);
+        });
+      }
     });
     return () => subscription.unsubscribe();
   }, []);
@@ -31,6 +44,9 @@ const Navbar = () => {
     { to: "/vagas", label: "Vagas" },
     { to: "/planos", label: "Planos" },
   ];
+
+  const profileLink = userRole === "company" ? "/dashboard/empresa" : "/perfil/candidato";
+  const profileLabel = userRole === "company" ? "Dashboard" : "Meu Perfil";
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -72,8 +88,13 @@ const Navbar = () => {
                     <MessageSquare className="w-5 h-5" />
                   </Button>
                 </Link>
-                <Link to="/perfil/candidato">
-                  <Button variant="ghost" size="sm">Meu Perfil</Button>
+                <Link to={profileLink}>
+                  <Button variant="ghost" size="sm">{profileLabel}</Button>
+                </Link>
+                <Link to="/configuracoes">
+                  <Button variant="ghost" size="icon">
+                    <Settings className="w-5 h-5" />
+                  </Button>
                 </Link>
                 <Button variant="outline" size="sm" onClick={handleLogout} className="gap-2">
                   <LogOut className="w-4 h-4" />
@@ -122,8 +143,13 @@ const Navbar = () => {
               <div className="flex flex-col gap-2 mt-3 px-4">
                 {user ? (
                   <>
-                    <Link to="/perfil/candidato" onClick={() => setIsOpen(false)}>
-                      <Button variant="outline" className="w-full">Meu Perfil</Button>
+                    <Link to={profileLink} onClick={() => setIsOpen(false)}>
+                      <Button variant="outline" className="w-full">{profileLabel}</Button>
+                    </Link>
+                    <Link to="/configuracoes" onClick={() => setIsOpen(false)}>
+                      <Button variant="outline" className="w-full gap-2">
+                        <Settings className="w-4 h-4" /> Configurações
+                      </Button>
                     </Link>
                     <Button className="w-full gap-2" variant="outline" onClick={() => { handleLogout(); setIsOpen(false); }}>
                       <LogOut className="w-4 h-4" />

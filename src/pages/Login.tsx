@@ -27,7 +27,6 @@ const Login = () => {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
 
-      // Check user role to redirect
       const userId = data.user?.id;
       if (userId) {
         const { data: roleData } = await supabase
@@ -88,7 +87,11 @@ const Login = () => {
           <p className="text-muted-foreground mb-8">
             Não tem conta?{" "}
             <Link to="/cadastro/candidato" className="text-primary font-semibold hover:underline">
-              Cadastre-se
+              Sou Candidato
+            </Link>
+            {" · "}
+            <Link to="/cadastro/empresa" className="text-primary font-semibold hover:underline">
+              Sou Empresa
             </Link>
           </p>
 
@@ -100,7 +103,7 @@ const Login = () => {
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <Label htmlFor="password">Senha</Label>
-                <a href="#" className="text-xs text-primary hover:underline">Esqueceu a senha?</a>
+                <Link to="/esqueci-senha" className="text-xs text-primary hover:underline">Esqueceu a senha?</Link>
               </div>
               <div className="relative">
                 <Input
@@ -125,12 +128,6 @@ const Login = () => {
               Entrar
             </Button>
           </form>
-
-          <div className="mt-8 text-center text-sm text-muted-foreground">
-            <Link to="/cadastro/empresa" className="text-primary font-semibold hover:underline">
-              Entrar como empresa →
-            </Link>
-          </div>
         </div>
       </div>
     </div>
