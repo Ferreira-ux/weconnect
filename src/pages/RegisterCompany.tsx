@@ -21,10 +21,34 @@ const sectors = [
   "Outros",
 ];
 
+// Brazilian CNPJ validation (checksum)
+const validateCNPJ = (raw: string): boolean => {
+  const cnpj = raw.replace(/\D/g, "");
+  if (cnpj.length !== 14 || /^(\d)\1+$/.test(cnpj)) return false;
+  const calc = (base: string, weights: number[]) => {
+    const sum = base.split("").reduce((acc, n, i) => acc + Number(n) * weights[i], 0);
+    const mod = sum % 11;
+    return mod < 2 ? 0 : 11 - mod;
+  };
+  const w1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+  const w2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+  const d1 = calc(cnpj.slice(0, 12), w1);
+  const d2 = calc(cnpj.slice(0, 12) + d1, w2);
+  return d1 === Number(cnpj[12]) && d2 === Number(cnpj[13]);
+};
+
+const formatCNPJ = (v: string) =>
+  v.replace(/\D/g, "").slice(0, 14)
+    .replace(/^(\d{2})(\d)/, "$1.$2")
+    .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
+    .replace(/\.(\d{3})(\d)/, ".$1/$2")
+    .replace(/(\d{4})(\d)/, "$1-$2");
+
 const RegisterCompany = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [companyName, setCompanyName] = useState("");
+  const [cnpj, setCnpj] = useState("");
   const [sector, setSector] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -34,8 +58,12 @@ const RegisterCompany = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!companyName || !sector || !email || !password) {
+    if (!companyName || !sector || !email || !password || !cnpj) {
       toast({ title: "Preencha todos os campos obrigatórios", variant: "destructive" });
+      return;
+    }
+    if (!validateCNPJ(cnpj)) {
+      toast({ title: "CNPJ inválido", description: "Verifique o número informado.", variant: "destructive" });
       return;
     }
     if (password.length < 8) {
@@ -56,6 +84,7 @@ const RegisterCompany = () => {
             company_name: companyName,
             sector,
             phone: phone || null,
+            cnpj: cnpj.replace(/\D/g, ""),
           },
         },
       });
@@ -114,8 +143,21 @@ const RegisterCompany = () => {
 
           <form className="space-y-4" onSubmit={handleSubmit}>
             <div className="space-y-2">
-              <Label htmlFor="companyName">Nome da Empresa</Label>
+              <Label htmlFor="companyName">Nome da Empresa *</Label>
               <Input id="companyName" placeholder="Empresa LTDA" className="h-11" value={companyName} onChange={(e) => setCompanyName(e.target.value)} />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="cnpj">CNPJ *</Label>
+              <Input
+                id="cnpj"
+                placeholder="00.000.000/0000-00"
+                className="h-11"
+                value={cnpj}
+                onChange={(e) => setCnpj(formatCNPJ(e.target.value))}
+                maxLength={18}
+                inputMode="numeric"
+              />
             </div>
 
             <div className="space-y-2">
