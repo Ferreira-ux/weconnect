@@ -234,6 +234,34 @@ const CompanyDashboard = () => {
     toast({ title: status === "approved" ? "Candidato aceito!" : "Candidato recusado" });
   };
 
+  const analyzeWithAI = async () => {
+    if (!selectedJobId) return;
+    setAnalyzing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("analyze-applications", {
+        body: { job_id: selectedJobId },
+      });
+      if (error) throw error;
+      const results = (data as any)?.results || [];
+      const map = new Map(results.map((r: any) => [r.application_id, r]));
+      setSelectedJobApplicants((prev) =>
+        prev
+          ? prev.map((a: any) => {
+              const r: any = map.get(a.id);
+              if (!r || r.error) return a;
+              return { ...a, ai_score: r.score, ai_summary: r.summary, ai_strengths: r.strengths, ai_gaps: r.gaps };
+            })
+          : prev
+      );
+      setSortByScore(true);
+      toast({ title: "Análise concluída", description: `${results.length} candidato(s) avaliado(s) pela IA.` });
+    } catch (err: any) {
+      toast({ title: "Erro na análise", description: err.message || String(err), variant: "destructive" });
+    } finally {
+      setAnalyzing(false);
+    }
+  };
+
   const startChat = async (applicationId: string, candidateUserId: string) => {
     if (!currentUserId) return;
 
