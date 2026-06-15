@@ -475,20 +475,39 @@ const CompanyDashboard = () => {
             animate={{ opacity: 1, y: 0 }}
             className="mt-8 bg-card border border-border rounded-2xl p-6"
           >
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
               <h2 className="font-bold text-foreground flex items-center gap-2">
                 <Users className="w-5 h-5 text-primary" />
                 Candidatos — {selectedJobTitle}
               </h2>
-              <Button variant="ghost" size="sm" onClick={() => setSelectedJobApplicants(null)}>
-                Fechar
-              </Button>
+              <div className="flex items-center gap-2 flex-wrap">
+                <Button
+                  size="sm"
+                  onClick={analyzeWithAI}
+                  disabled={analyzing || selectedJobApplicants.length === 0}
+                  className="bg-gradient-hero text-primary-foreground hover:opacity-90 gap-2"
+                >
+                  {analyzing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                  {analyzing ? "Analisando..." : "Analisar com IA"}
+                </Button>
+                {selectedJobApplicants.some((a: any) => typeof a.ai_score === "number") && (
+                  <Button size="sm" variant="outline" className="gap-2" onClick={() => setSortByScore((v) => !v)}>
+                    {sortByScore ? <ArrowDownAZ className="w-4 h-4" /> : <TrendingUp className="w-4 h-4" />}
+                    {sortByScore ? "Ordem original" : "Ordenar por aderência"}
+                  </Button>
+                )}
+                <Button variant="ghost" size="sm" onClick={() => { setSelectedJobApplicants(null); setSelectedJobId(null); }}>
+                  Fechar
+                </Button>
+              </div>
             </div>
             {selectedJobApplicants.length === 0 ? (
               <p className="text-muted-foreground text-sm text-center py-6">Nenhum candidato se inscreveu ainda.</p>
             ) : (
               <div className="space-y-3">
-                {selectedJobApplicants.map((app: any) => (
+                {[...selectedJobApplicants]
+                  .sort((a: any, b: any) => sortByScore ? ((b.ai_score ?? -1) - (a.ai_score ?? -1)) : 0)
+                  .map((app: any) => (
                   <div key={app.id} className="p-4 border border-border rounded-lg space-y-3">
                     <div className="flex items-start justify-between gap-3 flex-wrap">
                       <div>
