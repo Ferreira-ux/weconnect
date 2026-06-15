@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import {
-  Plus, Briefcase, MapPin, Trash2, Pencil, Loader2, Building2, Eye, EyeOff, Users, MessageSquare,
+  Plus, Briefcase, MapPin, Trash2, Pencil, Loader2, Building2, Eye, EyeOff, Users, MessageSquare, Sparkles, TrendingUp, ArrowDownAZ,
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -45,8 +45,11 @@ const CompanyDashboard = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingJob, setEditingJob] = useState<Job | null>(null);
   const [selectedJobApplicants, setSelectedJobApplicants] = useState<any[] | null>(null);
+  const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const [selectedJobTitle, setSelectedJobTitle] = useState("");
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [sortByScore, setSortByScore] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
