@@ -2,9 +2,11 @@
 
 ## Integrantes da Equipe
 
-- [A definir]
-- [A definir]
-- [A definir]
+- Deborah Mendes Dantas
+- Keirrison Davi de Almeida Leitão
+- Raianne Maria Costa Santiago
+- Suellen Ferreira da Silva
+- Tamires Rayane Nascimento de Sousa
 
 ## Descrição do Sistema
 
