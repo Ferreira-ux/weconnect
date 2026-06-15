@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import {
-  Plus, Briefcase, MapPin, Trash2, Pencil, Loader2, Building2, Eye, EyeOff, Users, MessageSquare,
+  Plus, Briefcase, MapPin, Trash2, Pencil, Loader2, Building2, Eye, EyeOff, Users, MessageSquare, Sparkles, TrendingUp, ArrowDownAZ,
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -45,8 +45,11 @@ const CompanyDashboard = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingJob, setEditingJob] = useState<Job | null>(null);
   const [selectedJobApplicants, setSelectedJobApplicants] = useState<any[] | null>(null);
+  const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const [selectedJobTitle, setSelectedJobTitle] = useState("");
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [sortByScore, setSortByScore] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -154,6 +157,8 @@ const CompanyDashboard = () => {
 
   const viewApplicants = async (jobId: string, jobTitle: string) => {
     setSelectedJobTitle(jobTitle);
+    setSelectedJobId(jobId);
+    setSortByScore(false);
     const { data: apps } = await supabase
       .from("applications")
       .select("*")
@@ -227,6 +232,34 @@ const CompanyDashboard = () => {
     });
 
     toast({ title: status === "approved" ? "Candidato aceito!" : "Candidato recusado" });
+  };
+
+  const analyzeWithAI = async () => {
+    if (!selectedJobId) return;
+    setAnalyzing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("analyze-applications", {
+        body: { job_id: selectedJobId },
+      });
+      if (error) throw error;
+      const results = (data as any)?.results || [];
+      const map = new Map(results.map((r: any) => [r.application_id, r]));
+      setSelectedJobApplicants((prev) =>
+        prev
+          ? prev.map((a: any) => {
+              const r: any = map.get(a.id);
+              if (!r || r.error) return a;
+              return { ...a, ai_score: r.score, ai_summary: r.summary, ai_strengths: r.strengths, ai_gaps: r.gaps };
+            })
+          : prev
+      );
+      setSortByScore(true);
+      toast({ title: "Análise concluída", description: `${results.length} candidato(s) avaliado(s) pela IA.` });
+    } catch (err: any) {
+      toast({ title: "Erro na análise", description: err.message || String(err), variant: "destructive" });
+    } finally {
+      setAnalyzing(false);
+    }
   };
 
   const startChat = async (applicationId: string, candidateUserId: string) => {
@@ -442,20 +475,39 @@ const CompanyDashboard = () => {
             animate={{ opacity: 1, y: 0 }}
             className="mt-8 bg-card border border-border rounded-2xl p-6"
           >
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
               <h2 className="font-bold text-foreground flex items-center gap-2">
                 <Users className="w-5 h-5 text-primary" />
                 Candidatos — {selectedJobTitle}
               </h2>
-              <Button variant="ghost" size="sm" onClick={() => setSelectedJobApplicants(null)}>
-                Fechar
-              </Button>
+              <div className="flex items-center gap-2 flex-wrap">
+                <Button
+                  size="sm"
+                  onClick={analyzeWithAI}
+                  disabled={analyzing || selectedJobApplicants.length === 0}
+                  className="bg-gradient-hero text-primary-foreground hover:opacity-90 gap-2"
+                >
+                  {analyzing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                  {analyzing ? "Analisando..." : "Analisar com IA"}
+                </Button>
+                {selectedJobApplicants.some((a: any) => typeof a.ai_score === "number") && (
+                  <Button size="sm" variant="outline" className="gap-2" onClick={() => setSortByScore((v) => !v)}>
+                    {sortByScore ? <ArrowDownAZ className="w-4 h-4" /> : <TrendingUp className="w-4 h-4" />}
+                    {sortByScore ? "Ordem original" : "Ordenar por aderência"}
+                  </Button>
+                )}
+                <Button variant="ghost" size="sm" onClick={() => { setSelectedJobApplicants(null); setSelectedJobId(null); }}>
+                  Fechar
+                </Button>
+              </div>
             </div>
             {selectedJobApplicants.length === 0 ? (
               <p className="text-muted-foreground text-sm text-center py-6">Nenhum candidato se inscreveu ainda.</p>
             ) : (
               <div className="space-y-3">
-                {selectedJobApplicants.map((app: any) => (
+                {[...selectedJobApplicants]
+                  .sort((a: any, b: any) => sortByScore ? ((b.ai_score ?? -1) - (a.ai_score ?? -1)) : 0)
+                  .map((app: any) => (
                   <div key={app.id} className="p-4 border border-border rounded-lg space-y-3">
                     <div className="flex items-start justify-between gap-3 flex-wrap">
                       <div>
@@ -508,6 +560,52 @@ const CompanyDashboard = () => {
                       <div className="text-sm">
                         <span className="font-medium text-foreground">Habilidades: </span>
                         <span className="text-muted-foreground">{app.candidateSkills}</span>
+                      </div>
+                    )}
+
+                    {typeof app.ai_score === "number" && (
+                      <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 space-y-2">
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                            <Sparkles className="w-4 h-4 text-primary" />
+                            Análise IA
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className={`text-lg font-extrabold ${
+                              app.ai_score >= 75 ? "text-primary" :
+                              app.ai_score >= 50 ? "text-accent-foreground" :
+                              "text-destructive"
+                            }`}>
+                              {app.ai_score}
+                            </span>
+                            <span className="text-xs text-muted-foreground">/100 aderência</span>
+                          </div>
+                        </div>
+                        <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
+                          <div
+                            className={`h-full ${app.ai_score >= 75 ? "bg-primary" : app.ai_score >= 50 ? "bg-accent" : "bg-destructive"}`}
+                            style={{ width: `${app.ai_score}%` }}
+                          />
+                        </div>
+                        {app.ai_summary && <p className="text-sm text-muted-foreground">{app.ai_summary}</p>}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                          {app.ai_strengths?.length > 0 && (
+                            <div>
+                              <p className="text-xs font-semibold text-primary mb-1">Pontos fortes</p>
+                              <ul className="text-xs text-muted-foreground space-y-0.5 list-disc pl-4">
+                                {app.ai_strengths.map((s: string, i: number) => <li key={i}>{s}</li>)}
+                              </ul>
+                            </div>
+                          )}
+                          {app.ai_gaps?.length > 0 && (
+                            <div>
+                              <p className="text-xs font-semibold text-destructive mb-1">Lacunas</p>
+                              <ul className="text-xs text-muted-foreground space-y-0.5 list-disc pl-4">
+                                {app.ai_gaps.map((s: string, i: number) => <li key={i}>{s}</li>)}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     )}
 

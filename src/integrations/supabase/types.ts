@@ -16,6 +16,11 @@ export type Database = {
     Tables: {
       applications: {
         Row: {
+          ai_analyzed_at: string | null
+          ai_gaps: Json | null
+          ai_score: number | null
+          ai_strengths: Json | null
+          ai_summary: string | null
           applied_at: string
           candidate_id: string
           id: string
@@ -24,6 +29,11 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          ai_analyzed_at?: string | null
+          ai_gaps?: Json | null
+          ai_score?: number | null
+          ai_strengths?: Json | null
+          ai_summary?: string | null
           applied_at?: string
           candidate_id: string
           id?: string
@@ -32,6 +42,11 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          ai_analyzed_at?: string | null
+          ai_gaps?: Json | null
+          ai_score?: number | null
+          ai_strengths?: Json | null
+          ai_summary?: string | null
           applied_at?: string
           candidate_id?: string
           id?: string
