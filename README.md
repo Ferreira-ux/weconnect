@@ -1,41 +1,44 @@
-Welcome to your Lovable Project
-Informações do Projeto
+# WeConnect+
 
-URL do Projeto:
-https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Integrantes da Equipe
 
-Este repositório contém o código-fonte da aplicação desenvolvida por meio da plataforma Lovable, com versionamento e gerenciamento realizados via GitHub.
+- [A definir]
+- [A definir]
+- [A definir]
 
-Diretrizes para Edição e Manutenção do Código
+## Descrição do Sistema
 
-A aplicação pode ser editada e mantida por diferentes abordagens, conforme descrito a seguir.
+O **WeConnect+** é uma plataforma de recrutamento e seleção que conecta candidatos a oportunidades de emprego e empresas a talentos qualificados. O sistema permite que empresas publiquem vagas com especificações detalhadas (tipo de contrato, modelo de trabalho — presencial, remoto ou híbrido), recebam candidaturas, avaliem currículos e gerenciem o processo seletivo de forma centralizada.
 
-1. Edição por meio da Plataforma Lovable
+Para os candidatos, a plataforma oferece a possibilidade de criar um perfil profissional completo, anexar currículos em múltiplos formatos (PDF, Word e imagem), filtrar vagas por área, localização e tipo de contrato, se candidatar a oportunidades e acompanhar o status de suas candidaturas em tempo real. Além disso, o sistema conta com funcionalidades de chat entre candidatos e empresas, notificações em tempo real e painéis de controle dedicados para cada tipo de usuário.
 
-A forma mais direta de modificar o projeto é acessando a plataforma Lovable:
+## Tecnologias Utilizadas
 
-Acesse:
-https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+| Camada | Tecnologia |
+|--------|-----------|
+| Linguagem | TypeScript |
+| Framework Frontend | React 18 |
+| Build Tool / Dev Server | Vite 5 |
+| Estilização | Tailwind CSS |
+| Componentes UI | shadcn/ui + Radix UI |
+| Backend / Banco de Dados | Supabase (PostgreSQL) |
+| Roteamento | React Router DOM |
+| Formulários | React Hook Form + Zod |
+| Testes | Vitest + Testing Library |
 
-As alterações realizadas na interface da plataforma são automaticamente versionadas e sincronizadas com este repositório.
+## Desenvolvimento Local
 
-2. Desenvolvimento Local com IDE
+### Pré-requisitos
 
-Para desenvolvimento local utilizando um ambiente de desenvolvimento integrado (IDE) de sua preferência, siga as instruções abaixo.
+- Node.js instalado
+- npm (Node Package Manager)
 
-Pré-requisitos
+> Recomenda-se a utilização do nvm para gerenciamento de versões:
+> https://github.com/nvm-sh/nvm#installing-and-updating
 
-Node.js instalado
-
-npm (Node Package Manager)
-
-Recomenda-se a utilização do nvm para gerenciamento de versões:
-https://github.com/nvm-sh/nvm#installing-and-updating
-
-Procedimento 
+### Procedimento
 
 ```sh
-
 # Etapa 1: Clone o repositório utilizando a URL Git do projeto.
 git clone <YOUR_GIT_URL>
 
@@ -47,76 +50,35 @@ npm install
 
 # Etapa 4: Inicie o servidor de desenvolvimento com recarregamento automático e preview instantâneo.
 npm run dev
-
 ```
 
 Após a execução do servidor de desenvolvimento, a aplicação estará disponível em ambiente local com suporte a hot reload.
 
-As alterações enviadas ao repositório remoto serão automaticamente refletidas na plataforma Lovable.
+## Edição e Manutenção
 
-3. Edição Diretamente no GitHub
+A aplicação pode ser editada e mantida por diferentes abordagens:
 
-Também é possível realizar modificações diretamente pela interface web do GitHub:
+1. **Plataforma Lovable** — A forma mais direta de modificar o projeto.
+2. **IDE Local** — Desenvolvimento local conforme descrito acima.
+3. **GitHub Web** — Edições diretamente pela interface web do GitHub.
+4. **GitHub Codespaces** — Desenvolvimento remoto baseado em nuvem.
 
-Navegue até o arquivo desejado.
-
-Selecione a opção Edit (ícone de lápis).
-
-Realize as alterações necessárias.
-
-Efetue o commit das modificações.
-
-4. Utilização do GitHub Codespaces
-
-Para desenvolvimento em ambiente remoto baseado em nuvem:
-
-Acesse a página principal do repositório.
-
-Clique no botão Code.
-
-Selecione a aba Codespaces.
-
-Crie um novo Codespace.
-
-Edite, commit e envie (push) as alterações diretamente do ambiente provisionado.
-
-Tecnologias Utilizadas
-
-Este projeto foi desenvolvido utilizando as seguintes tecnologias:
-
-Vite (build tool e dev server)
-
-TypeScript (tipagem estática)
-
-React (biblioteca para construção de interfaces)
-
-shadcn-ui (componentes de interface)
-
-Tailwind CSS (framework utilitário de estilização)
-
-Processo de Deploy
+## Deploy
 
 O processo de publicação é realizado diretamente pela plataforma Lovable.
 
 Para publicar:
+- Acesse o projeto na plataforma.
+- Selecione a opção Share.
+- Clique em Publish.
 
-Acesse o projeto na plataforma.
-
-Selecione a opção Share.
-
-Clique em Publish.
-
-Configuração de Domínio Personalizado
+## Configuração de Domínio Personalizado
 
 A plataforma oferece suporte à associação de domínios personalizados.
 
 Para configurar:
+- Acesse Project > Settings > Domains.
+- Selecione Connect Domain.
+- Siga as instruções fornecidas pela plataforma.
 
-Acesse Project > Settings > Domains.
-
-Selecione Connect Domain.
-
-Siga as instruções fornecidas pela plataforma.
-
-Documentação adicional disponível em:
-https://docs.lovable.dev/features/custom-domain#custom-domain
+Documentação adicional disponível em: https://docs.lovable.dev/features/custom-domain#custom-domain
