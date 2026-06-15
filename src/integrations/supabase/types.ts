@@ -126,6 +126,7 @@ export type Database = {
       }
       companies: {
         Row: {
+          cnpj: string | null
           company_name: string
           created_at: string
           id: string
@@ -133,8 +134,10 @@ export type Database = {
           sector: string
           updated_at: string
           user_id: string
+          verified: boolean
         }
         Insert: {
+          cnpj?: string | null
           company_name: string
           created_at?: string
           id?: string
@@ -142,8 +145,10 @@ export type Database = {
           sector: string
           updated_at?: string
           user_id: string
+          verified?: boolean
         }
         Update: {
+          cnpj?: string | null
           company_name?: string
           created_at?: string
           id?: string
@@ -151,6 +156,7 @@ export type Database = {
           sector?: string
           updated_at?: string
           user_id?: string
+          verified?: boolean
         }
         Relationships: []
       }

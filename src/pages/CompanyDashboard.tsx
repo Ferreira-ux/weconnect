@@ -164,23 +164,40 @@ const CompanyDashboard = () => {
       return;
     }
 
-    // Get candidate user_ids and names
     const enriched = await Promise.all(
       apps.map(async (app: any) => {
         const { data: cand } = await supabase
           .from("candidates")
-          .select("user_id")
+          .select("id, user_id, skills, resume_url")
           .eq("id", app.candidate_id)
           .maybeSingle();
         const userId = cand?.user_id;
-        const { data: profile } = userId
-          ? await supabase.from("profiles").select("name, email").eq("user_id", userId).maybeSingle()
-          : { data: null };
+        const [profileRes, certsRes, expsRes] = await Promise.all([
+          userId
+            ? supabase.from("profiles").select("name, email, phone").eq("user_id", userId).maybeSingle()
+            : Promise.resolve({ data: null }),
+          cand?.id
+            ? supabase.from("certifications").select("title, institution, year").eq("candidate_id", cand.id)
+            : Promise.resolve({ data: [] }),
+          cand?.id
+            ? supabase.from("experiences").select("company, role, start_date, end_date, description").eq("candidate_id", cand.id).order("start_date", { ascending: false })
+            : Promise.resolve({ data: [] }),
+        ]);
+        let resumeUrl: string | null = null;
+        if (cand?.resume_url) {
+          const { data: signed } = await supabase.storage.from("resumes").createSignedUrl(cand.resume_url, 60 * 60);
+          resumeUrl = signed?.signedUrl || null;
+        }
         return {
           ...app,
           candidateUserId: userId,
-          candidateName: profile?.name || "Candidato",
-          candidateEmail: profile?.email || "",
+          candidateName: (profileRes as any).data?.name || "Candidato",
+          candidateEmail: (profileRes as any).data?.email || "",
+          candidatePhone: (profileRes as any).data?.phone || "",
+          candidateSkills: cand?.skills || "",
+          resumeUrl,
+          certifications: (certsRes as any).data || [],
+          experiences: (expsRes as any).data || [],
         };
       })
     );
@@ -439,48 +456,92 @@ const CompanyDashboard = () => {
             ) : (
               <div className="space-y-3">
                 {selectedJobApplicants.map((app: any) => (
-                  <div key={app.id} className="flex items-center justify-between p-4 border border-border rounded-lg">
-                    <div>
-                      <p className="font-semibold text-foreground">{app.candidateName}</p>
-              <p className="text-sm text-muted-foreground">{app.candidateEmail}</p>
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${
-                        app.status === "pending" ? "bg-accent text-accent-foreground" :
-                        app.status === "approved" ? "bg-primary/10 text-primary" :
-                        "bg-destructive/10 text-destructive"
-                      }`}>
-                        {app.status === "pending" ? "Pendente" : app.status === "approved" ? "Aprovado" : "Rejeitado"}
-                      </span>
+                  <div key={app.id} className="p-4 border border-border rounded-lg space-y-3">
+                    <div className="flex items-start justify-between gap-3 flex-wrap">
+                      <div>
+                        <p className="font-semibold text-foreground">{app.candidateName}</p>
+                        <p className="text-sm text-muted-foreground">{app.candidateEmail}</p>
+                        {app.candidatePhone && (
+                          <p className="text-xs text-muted-foreground">{app.candidatePhone}</p>
+                        )}
+                        <span className={`inline-block mt-1 text-xs px-2 py-0.5 rounded-full ${
+                          app.status === "pending" ? "bg-accent text-accent-foreground" :
+                          app.status === "approved" ? "bg-primary/10 text-primary" :
+                          "bg-destructive/10 text-destructive"
+                        }`}>
+                          {app.status === "pending" ? "Pendente" : app.status === "approved" ? "Aprovado" : "Rejeitado"}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {app.resumeUrl && (
+                          <a href={app.resumeUrl} target="_blank" rel="noreferrer">
+                            <Button size="sm" variant="outline">Ver currículo</Button>
+                          </a>
+                        )}
+                        {app.status === "pending" && (
+                          <>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-primary border-primary/30 hover:bg-primary/10"
+                              onClick={() => updateApplicationStatus(app.id, "approved", app.candidateUserId)}
+                            >
+                              Aceitar
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-destructive border-destructive/30 hover:bg-destructive/10"
+                              onClick={() => updateApplicationStatus(app.id, "rejected", app.candidateUserId)}
+                            >
+                              Recusar
+                            </Button>
+                          </>
+                        )}
+                        <Button size="sm" variant="outline" className="gap-1" onClick={() => startChat(app.id, app.candidateUserId)}>
+                          <MessageSquare className="w-4 h-4" /> Chat
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      {app.status === "pending" && (
-                        <>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="gap-1 text-primary border-primary/30 hover:bg-primary/10"
-                            onClick={() => updateApplicationStatus(app.id, "approved", app.candidateUserId)}
-                          >
-                            Aceitar
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="gap-1 text-destructive border-destructive/30 hover:bg-destructive/10"
-                            onClick={() => updateApplicationStatus(app.id, "rejected", app.candidateUserId)}
-                          >
-                            Recusar
-                          </Button>
-                        </>
-                      )}
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="gap-1"
-                        onClick={() => startChat(app.id, app.candidateUserId)}
-                      >
-                        <MessageSquare className="w-4 h-4" /> Chat
-                      </Button>
-                    </div>
+
+                    {app.candidateSkills && (
+                      <div className="text-sm">
+                        <span className="font-medium text-foreground">Habilidades: </span>
+                        <span className="text-muted-foreground">{app.candidateSkills}</span>
+                      </div>
+                    )}
+
+                    {app.experiences?.length > 0 && (
+                      <div className="text-sm">
+                        <p className="font-medium text-foreground mb-1">Experiências</p>
+                        <ul className="space-y-1 text-muted-foreground">
+                          {app.experiences.map((exp: any, i: number) => (
+                            <li key={i} className="text-xs">
+                              <span className="text-foreground font-medium">{exp.role}</span> — {exp.company} ({exp.start_date} → {exp.end_date || "Atual"})
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {app.certifications?.length > 0 && (
+                      <div className="text-sm">
+                        <p className="font-medium text-foreground mb-1">Certificações</p>
+                        <ul className="space-y-1 text-muted-foreground">
+                          {app.certifications.map((c: any, i: number) => (
+                            <li key={i} className="text-xs">
+                              {c.title} — {c.institution}{c.year ? ` (${c.year})` : ""}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {!app.resumeUrl && app.experiences?.length === 0 && app.certifications?.length === 0 && (
+                      <p className="text-xs text-muted-foreground italic">
+                        Este candidato ainda não enviou currículo, experiências ou certificações.
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>
