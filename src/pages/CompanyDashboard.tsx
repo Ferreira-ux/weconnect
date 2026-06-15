@@ -563,6 +563,52 @@ const CompanyDashboard = () => {
                       </div>
                     )}
 
+                    {typeof app.ai_score === "number" && (
+                      <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 space-y-2">
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                            <Sparkles className="w-4 h-4 text-primary" />
+                            Análise IA
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className={`text-lg font-extrabold ${
+                              app.ai_score >= 75 ? "text-primary" :
+                              app.ai_score >= 50 ? "text-accent-foreground" :
+                              "text-destructive"
+                            }`}>
+                              {app.ai_score}
+                            </span>
+                            <span className="text-xs text-muted-foreground">/100 aderência</span>
+                          </div>
+                        </div>
+                        <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
+                          <div
+                            className={`h-full ${app.ai_score >= 75 ? "bg-primary" : app.ai_score >= 50 ? "bg-accent" : "bg-destructive"}`}
+                            style={{ width: `${app.ai_score}%` }}
+                          />
+                        </div>
+                        {app.ai_summary && <p className="text-sm text-muted-foreground">{app.ai_summary}</p>}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                          {app.ai_strengths?.length > 0 && (
+                            <div>
+                              <p className="text-xs font-semibold text-primary mb-1">Pontos fortes</p>
+                              <ul className="text-xs text-muted-foreground space-y-0.5 list-disc pl-4">
+                                {app.ai_strengths.map((s: string, i: number) => <li key={i}>{s}</li>)}
+                              </ul>
+                            </div>
+                          )}
+                          {app.ai_gaps?.length > 0 && (
+                            <div>
+                              <p className="text-xs font-semibold text-destructive mb-1">Lacunas</p>
+                              <ul className="text-xs text-muted-foreground space-y-0.5 list-disc pl-4">
+                                {app.ai_gaps.map((s: string, i: number) => <li key={i}>{s}</li>)}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
                     {app.experiences?.length > 0 && (
                       <div className="text-sm">
                         <p className="font-medium text-foreground mb-1">Experiências</p>
