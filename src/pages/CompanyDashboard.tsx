@@ -157,6 +157,8 @@ const CompanyDashboard = () => {
 
   const viewApplicants = async (jobId: string, jobTitle: string) => {
     setSelectedJobTitle(jobTitle);
+    setSelectedJobId(jobId);
+    setSortByScore(false);
     const { data: apps } = await supabase
       .from("applications")
       .select("*")
