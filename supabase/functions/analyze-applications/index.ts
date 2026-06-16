@@ -132,22 +132,44 @@ Deno.serve(async (req) => {
     if (!user) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
     const admin = createClient(SUPABASE_URL, SERVICE_ROLE);
-    const { job_id } = await req.json();
-    if (!job_id) throw new Error("job_id required");
+    const { job_id, application_id } = await req.json();
+    if (!job_id && !application_id) throw new Error("job_id or application_id required");
 
-    // Verify caller owns the job's company
+    let targetJobId = job_id as string | undefined;
+    let restrictToAppId: string | undefined = application_id;
+
+    if (application_id && !job_id) {
+      const { data: appRow } = await admin.from("applications").select("job_id, candidate_id").eq("id", application_id).maybeSingle();
+      if (!appRow) throw new Error("Application not found");
+      targetJobId = (appRow as any).job_id;
+    }
+
+    // Fetch job
     const { data: job } = await admin
       .from("jobs")
       .select("*, companies!inner(user_id)")
-      .eq("id", job_id)
+      .eq("id", targetJobId)
       .maybeSingle();
     if (!job) throw new Error("Job not found");
-    if ((job as any).companies.user_id !== user.id) {
+
+    // Authorization: company owner OR (for single-app mode) the candidate of that application
+    let authorized = (job as any).companies.user_id === user.id;
+    if (!authorized && restrictToAppId) {
+      const { data: appRow } = await admin
+        .from("applications")
+        .select("candidate_id, candidates!inner(user_id)")
+        .eq("id", restrictToAppId)
+        .maybeSingle();
+      if (appRow && (appRow as any).candidates?.user_id === user.id) authorized = true;
+    }
+    if (!authorized) {
       return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     // Get applications + candidate details
-    const { data: apps } = await admin.from("applications").select("*").eq("job_id", job_id);
+    let appsQuery = admin.from("applications").select("*").eq("job_id", targetJobId);
+    if (restrictToAppId) appsQuery = appsQuery.eq("id", restrictToAppId);
+    const { data: apps } = await appsQuery;
     if (!apps || apps.length === 0) {
       return new Response(JSON.stringify({ results: [] }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
