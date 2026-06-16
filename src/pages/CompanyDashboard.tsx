@@ -697,7 +697,8 @@ const CompanyDashboard = () => {
                   </div>
                 ))}
               </div>
-            )}
+              );
+            })()}
           </motion.div>
         )}
       </div>
