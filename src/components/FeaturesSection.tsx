@@ -60,15 +60,14 @@ const FeaturesSection = () => {
           className="text-center max-w-2xl mx-auto mb-16"
         >
           <span className="text-sm font-semibold text-primary uppercase tracking-wider">
-            Funcionalidades
+            Auxiliar de RH com IA
           </span>
           <h2 className="text-3xl md:text-4xl font-extrabold text-foreground mt-3 mb-4">
-            Feito para quem quer{" "}
-            <span className="text-primary">começar</span>{" "}
-            ou recomeçar
+            Menos pilha de currículos.{" "}
+            <span className="text-primary">Mais decisões boas.</span>
           </h2>
           <p className="text-muted-foreground text-lg">
-            Sem burocracia. Cadastre suas habilidades e encontre vagas que combinam com você.
+            A WeConnect+ lê, organiza e ranqueia candidatos automaticamente — sua equipe de RH foca em conversar com quem realmente combina com a vaga.
           </p>
         </motion.div>
 
