@@ -119,15 +119,21 @@ const Jobs = () => {
         return;
       }
 
-      const { error } = await supabase.from("applications").insert({
-        job_id: jobId,
-        candidate_id: candidateData.id,
-      });
+      const { data: inserted, error } = await supabase
+        .from("applications")
+        .insert({ job_id: jobId, candidate_id: candidateData.id })
+        .select("id")
+        .single();
 
       if (error) throw error;
 
       setAppliedJobs((prev) => new Set(prev).add(jobId));
       toast({ title: "Candidatura enviada com sucesso!" });
+
+      // Fire-and-forget AI analysis for this application
+      if (inserted?.id) {
+        supabase.functions.invoke("analyze-applications", { body: { application_id: inserted.id } }).catch(() => {});
+      }
 
       // Notify company
       const job = jobs.find((j) => j.id === jobId);
