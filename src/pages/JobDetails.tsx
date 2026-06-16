@@ -69,11 +69,20 @@ const JobDetails = () => {
       const { data: cand } = await supabase.from("candidates").select("id").eq("user_id", userId).maybeSingle();
       if (!cand) { navigate("/perfil/candidato"); return; }
 
-      const { error } = await supabase.from("applications").insert({ job_id: id!, candidate_id: cand.id });
+      const { data: inserted, error } = await supabase
+        .from("applications")
+        .insert({ job_id: id!, candidate_id: cand.id })
+        .select("id")
+        .single();
       if (error) throw error;
 
       setApplied(true);
       toast({ title: "Candidatura enviada com sucesso!" });
+
+      // Fire-and-forget: auto-analyze this single application so the company sees an AI score immediately
+      if (inserted?.id) {
+        supabase.functions.invoke("analyze-applications", { body: { application_id: inserted.id } }).catch(() => {});
+      }
 
       // Notify company
       if (job?.companies?.user_id) {
