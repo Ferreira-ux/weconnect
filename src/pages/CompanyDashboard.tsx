@@ -50,6 +50,8 @@ const CompanyDashboard = () => {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [sortByScore, setSortByScore] = useState(false);
+  const [minScore, setMinScore] = useState(0);
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -501,11 +503,63 @@ const CompanyDashboard = () => {
                 </Button>
               </div>
             </div>
+
+            {/* Filters */}
+            {selectedJobApplicants.length > 0 && (
+              <div className="flex flex-wrap items-end gap-4 mb-4 p-3 rounded-lg bg-muted/40 border border-border">
+                <div className="space-y-1">
+                  <Label className="text-xs">Status</Label>
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger className="h-9 w-40"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todos</SelectItem>
+                      <SelectItem value="pending">Pendentes</SelectItem>
+                      <SelectItem value="approved">Aprovados</SelectItem>
+                      <SelectItem value="rejected">Recusados</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Aderência mínima (IA)</Label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={minScore}
+                      onChange={(e) => setMinScore(Math.max(0, Math.min(100, Number(e.target.value) || 0)))}
+                      className="h-9 w-24"
+                    />
+                    <span className="text-xs text-muted-foreground">/ 100</span>
+                  </div>
+                </div>
+                {(() => {
+                  const scored = selectedJobApplicants.filter((a: any) => typeof a.ai_score === "number");
+                  if (scored.length === 0) return null;
+                  const avg = Math.round(scored.reduce((s: number, a: any) => s + a.ai_score, 0) / scored.length);
+                  const top = Math.max(...scored.map((a: any) => a.ai_score));
+                  return (
+                    <div className="ml-auto text-xs text-muted-foreground flex gap-4">
+                      <span>Analisados: <b className="text-foreground">{scored.length}</b></span>
+                      <span>Média: <b className="text-foreground">{avg}</b></span>
+                      <span>Topo: <b className="text-foreground">{top}</b></span>
+                    </div>
+                  );
+                })()}
+              </div>
+            )}
             {selectedJobApplicants.length === 0 ? (
               <p className="text-muted-foreground text-sm text-center py-6">Nenhum candidato se inscreveu ainda.</p>
-            ) : (
+            ) : (() => {
+              const filtered = selectedJobApplicants
+                .filter((a: any) => statusFilter === "all" || a.status === statusFilter)
+                .filter((a: any) => minScore === 0 || (typeof a.ai_score === "number" && a.ai_score >= minScore));
+              if (filtered.length === 0) {
+                return <p className="text-muted-foreground text-sm text-center py-6">Nenhum candidato corresponde aos filtros atuais.</p>;
+              }
+              return (
               <div className="space-y-3">
-                {[...selectedJobApplicants]
+                {[...filtered]
                   .sort((a: any, b: any) => sortByScore ? ((b.ai_score ?? -1) - (a.ai_score ?? -1)) : 0)
                   .map((app: any) => (
                   <div key={app.id} className="p-4 border border-border rounded-lg space-y-3">
@@ -643,7 +697,8 @@ const CompanyDashboard = () => {
                   </div>
                 ))}
               </div>
-            )}
+              );
+            })()}
           </motion.div>
         )}
       </div>

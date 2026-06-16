@@ -1,38 +1,38 @@
 import {
-  Search, FileText, Bell, Shield, Zap, MessageSquare,
+  Sparkles, FileSearch, BarChart3, Filter, Bell, MessageSquare,
 } from "lucide-react";
 import { motion } from "framer-motion";
 
 const features = [
   {
-    icon: Search,
-    title: "Busca Inteligente",
-    description: "Encontre vagas por área, cidade, tipo de contrato e mais. Filtros avançados para resultados precisos.",
+    icon: Sparkles,
+    title: "Triagem com IA",
+    description: "Nosso assistente de RH lê cada currículo, compara com a vaga e gera uma pontuação de aderência de 0 a 100.",
   },
   {
-    icon: FileText,
-    title: "Currículo Online",
-    description: "Faça upload do seu currículo e mantenha seu perfil sempre atualizado para as empresas.",
+    icon: FileSearch,
+    title: "Leitura automática de currículos",
+    description: "Extraímos experiências, habilidades e formações de PDFs e imagens — sem precisar abrir um por um.",
+  },
+  {
+    icon: BarChart3,
+    title: "Ranking de candidatos",
+    description: "Veja pontos fortes, lacunas e um resumo objetivo por candidato. Ordene pelos que mais combinam com a vaga.",
+  },
+  {
+    icon: Filter,
+    title: "Filtros por expectativa",
+    description: "Defina requisitos e perfil ideal. A IA destaca os candidatos que atendem ao que sua empresa procura.",
   },
   {
     icon: Bell,
-    title: "Notificações em Tempo Real",
-    description: "Receba alertas por e-mail sobre novas vagas, candidaturas e atualizações de status.",
-  },
-  {
-    icon: Shield,
-    title: "Segurança Garantida",
-    description: "Dados criptografados, autenticação segura e proteção contra fraudes.",
-  },
-  {
-    icon: Zap,
-    title: "Vagas Impulsionadas",
-    description: "Empresas podem destacar vagas para alcançar mais candidatos qualificados.",
+    title: "Notificações em tempo real",
+    description: "Avisos automáticos para candidaturas, aprovações e novas mensagens — nada se perde no caminho.",
   },
   {
     icon: MessageSquare,
-    title: "Chat Direto",
-    description: "Comunicação direta entre candidatos e empresas para agilizar o processo.",
+    title: "Chat direto com o candidato",
+    description: "Aprovou um perfil? Inicie a conversa em um clique e acompanhe tudo dentro da plataforma.",
   },
 ];
 
@@ -60,15 +60,14 @@ const FeaturesSection = () => {
           className="text-center max-w-2xl mx-auto mb-16"
         >
           <span className="text-sm font-semibold text-primary uppercase tracking-wider">
-            Funcionalidades
+            Auxiliar de RH com IA
           </span>
           <h2 className="text-3xl md:text-4xl font-extrabold text-foreground mt-3 mb-4">
-            Feito para quem quer{" "}
-            <span className="text-primary">começar</span>{" "}
-            ou recomeçar
+            Menos pilha de currículos.{" "}
+            <span className="text-primary">Mais decisões boas.</span>
           </h2>
           <p className="text-muted-foreground text-lg">
-            Sem burocracia. Cadastre suas habilidades e encontre vagas que combinam com você.
+            A WeConnect+ lê, organiza e ranqueia candidatos automaticamente — sua equipe de RH foca em conversar com quem realmente combina com a vaga.
           </p>
         </motion.div>
 
