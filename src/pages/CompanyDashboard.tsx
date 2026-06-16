@@ -548,8 +548,18 @@ const CompanyDashboard = () => {
                 })()}
               </div>
             )}
+            {selectedJobApplicants.length === 0 ? (
+              <p className="text-muted-foreground text-sm text-center py-6">Nenhum candidato se inscreveu ainda.</p>
+            ) : (() => {
+              const filtered = selectedJobApplicants
+                .filter((a: any) => statusFilter === "all" || a.status === statusFilter)
+                .filter((a: any) => minScore === 0 || (typeof a.ai_score === "number" && a.ai_score >= minScore));
+              if (filtered.length === 0) {
+                return <p className="text-muted-foreground text-sm text-center py-6">Nenhum candidato corresponde aos filtros atuais.</p>;
+              }
+              return (
               <div className="space-y-3">
-                {[...selectedJobApplicants]
+                {[...filtered]
                   .sort((a: any, b: any) => sortByScore ? ((b.ai_score ?? -1) - (a.ai_score ?? -1)) : 0)
                   .map((app: any) => (
                   <div key={app.id} className="p-4 border border-border rounded-lg space-y-3">
