@@ -50,6 +50,8 @@ const CompanyDashboard = () => {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [sortByScore, setSortByScore] = useState(false);
+  const [minScore, setMinScore] = useState(0);
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const navigate = useNavigate();
   const { toast } = useToast();
 
