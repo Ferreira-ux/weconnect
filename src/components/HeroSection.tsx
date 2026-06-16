@@ -27,7 +27,7 @@ const HeroSection = () => {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent text-accent-foreground text-sm font-medium mb-8"
           >
             <Sparkles className="w-4 h-4" />
-            Oportunidades para todos, sem exigir diploma
+            Auxiliar de RH com IA — leitura e triagem de currículos
           </motion.div>
 
           <motion.h1
@@ -36,9 +36,8 @@ const HeroSection = () => {
             transition={{ duration: 0.6, delay: 0.15 }}
             className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground leading-tight mb-6"
           >
-            Sua próxima{" "}
-            <span className="text-primary">oportunidade</span>{" "}
-            começa aqui
+            A IA que lê currículos{" "}
+            <span className="text-primary">por você</span>
           </motion.h1>
 
           <motion.p
@@ -47,8 +46,9 @@ const HeroSection = () => {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="text-lg md:text-xl text-muted-foreground mb-10 leading-relaxed max-w-2xl mx-auto"
           >
-            Não precisa de diploma ou experiência extensa. Cadastre-se, mostre suas habilidades
-            e conecte-se com empresas que valorizam o seu potencial.
+            Publique sua vaga, defina suas expectativas e deixe o assistente da WeConnect+
+            analisar cada candidato, gerar uma pontuação de aderência e destacar os perfis
+            que mais combinam com a sua empresa.
           </motion.p>
 
           <motion.div
